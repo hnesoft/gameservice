@@ -3,8 +3,10 @@ package eu.hnesoft.gameservice
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.CrossOrigin
 
 @RestController
+@CrossOrigin("http://localhost:4200")
 class GameController {
 
 	val USER_WINS: String = "Sie haben gewonnen!"
@@ -17,6 +19,11 @@ class GameController {
     val spock: Int = 4
     val lizard: Int = 5
 
+	val resultMessages = listOf("Stone grinds scissors!","Scissors cut paper!", 
+		"Scissors decapitats lizard!","Spock smashes scissors!",
+        "Paper covered stone!","Stone crushes lizard!","Spock vaporizes stone!",
+        "Lizard eats paper!","Paper refutes Spock!","Lizard poisons Spock!");
+
 	@GetMapping("/")
 	fun play(@RequestParam("choice") usersChoice: Int): Response {
 		var resultMessage: String = ""
@@ -24,10 +31,12 @@ class GameController {
 		if (usersChoice == scissors) {
 			if (usersChoice == computer) {
 				resultMessage = DRAW_RESULT
-			} else if (computer == rock || computer == spock) {
-				resultMessage = PC_WINS
+			} else if (computer == rock) {
+				resultMessage = resultMessages.get(0)
+			} else if (computer == spock) {
+				resultMessage = resultMessages.get(3)
 			} else {
-				resultMessage = USER_WINS
+				resultMessage = resultMessages.get(usersChoice)
 			}
 		} else if (usersChoice == rock) {
 			if (usersChoice == computer) {
