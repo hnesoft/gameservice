@@ -1,5 +1,7 @@
 package eu.hnesoft.gameservice
 
+import mu.KotlinLogging
+
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -9,15 +11,11 @@ import org.springframework.web.bind.annotation.CrossOrigin
 @CrossOrigin("http://localhost:4200")
 class GameController {
 
-	val USER_WINS: String = "Sie haben gewonnen!"
-	val PC_WINS: String = "Der PC hat gewonnen!"
-	val DRAW_RESULT: String = "Unentschieden!"
+	private val logger = KotlinLogging.logger {}
 
-    val scissors: Int = 1
-    val rock: Int = 2
-    val paper: Int = 3
-    val spock: Int = 4
-    val lizard: Int = 5
+	val USER_WINS: String = "You win!"
+	val PC_WINS: String = "The PC win!"
+	val UNDECIDED: String = "Undecided!"
 
 	val resultMessages = listOf("Stone grinds scissors!","Scissors cut paper!", 
 		"Scissors decapitats lizard!","Spock smashes scissors!",
@@ -25,50 +23,49 @@ class GameController {
         "Lizard eats paper!","Paper refutes Spock!","Lizard poisons Spock!");
 
 	@GetMapping("/")
-	fun play(@RequestParam("choice") usersChoice: Int): Response {
+	fun checkResult(@RequestParam("choice") usersChoice: Int): Response {
+		logger.debug { "backend method has been called" }
 		var resultMessage: String = ""
 		var computer = (1 until 6).random()
-		if (usersChoice == scissors) {
-			if (usersChoice == computer) {
-				resultMessage = DRAW_RESULT
-			} else if (computer == rock) {
-				resultMessage = resultMessages.get(0)
-			} else if (computer == spock) {
-				resultMessage = resultMessages.get(3)
-			} else {
-				resultMessage = resultMessages.get(usersChoice)
-			}
-		} else if (usersChoice == rock) {
-			if (usersChoice == computer) {
-				resultMessage = DRAW_RESULT
-			} else if (computer == paper) {
-				resultMessage = PC_WINS
-			} else {
+		if (usersChoice == Symbols.SCISSORS.rank) {
+			if (computer == usersChoice) {
+				resultMessage = UNDECIDED
+			} else if (computer == Symbols.PAPER.rank || computer == Symbols.LIZARD.rank) {
 				resultMessage = USER_WINS
-			}
-		} else if (usersChoice == paper) {
-			if (usersChoice == computer) {
-				resultMessage = DRAW_RESULT
-			} else if (computer == scissors) {
-				resultMessage = PC_WINS
 			} else {
-				resultMessage = USER_WINS
-			}
-		} else if (usersChoice == spock) {
-			if (usersChoice == computer) {
-				resultMessage = DRAW_RESULT
-			} else if (computer == paper || computer == lizard) {
 				resultMessage = PC_WINS
-			} else {
-				resultMessage = USER_WINS
 			}
-		} else if (usersChoice == lizard) {
-			if (usersChoice == computer) {
-				resultMessage = DRAW_RESULT
-			} else if (computer == rock || computer == scissors) {
-				resultMessage = PC_WINS
-			} else {
+		} else if (usersChoice == Symbols.ROCK.rank) {
+			if (computer == usersChoice) {
+				resultMessage = UNDECIDED
+			} else if (computer == Symbols.SCISSORS.rank || computer == Symbols.LIZARD.rank) {
 				resultMessage = USER_WINS
+			} else {
+				resultMessage = PC_WINS
+			}
+		} else if (usersChoice == Symbols.PAPER.rank) {
+			if (computer == usersChoice) {
+				resultMessage = UNDECIDED
+			} else if (computer == Symbols.SPOCK.rank || computer == Symbols.ROCK.rank) {
+				resultMessage = USER_WINS
+			} else {
+				resultMessage = PC_WINS
+			}
+		} else if (usersChoice == Symbols.SPOCK.rank) {
+			if (computer == usersChoice) {
+				resultMessage = UNDECIDED
+			} else if (computer == Symbols.SCISSORS.rank || computer == Symbols.ROCK.rank) {
+				resultMessage = USER_WINS
+			} else {
+				resultMessage = PC_WINS
+			}
+		} else if (usersChoice == Symbols.LIZARD.rank) {
+			if (computer == usersChoice) {
+				resultMessage = UNDECIDED
+			} else if (computer == Symbols.SPOCK.rank || computer == Symbols.PAPER.rank) {
+				resultMessage = USER_WINS
+			} else {
+				resultMessage = PC_WINS
 			}
 		}
 		return Response(usersChoice, computer, resultMessage)
