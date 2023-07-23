@@ -15,59 +15,37 @@ class GameController {
 
 	val USER_WINS: String = "You win!"
 	val PC_WINS: String = "The PC win!"
-	val UNDECIDED: String = "Undecided!"
-
-	val resultMessages = listOf("Stone grinds scissors!","Scissors cut paper!", 
-		"Scissors decapitats lizard!","Spock smashes scissors!",
-        "Paper covered stone!","Stone crushes lizard!","Spock vaporizes stone!",
-        "Lizard eats paper!","Paper refutes Spock!","Lizard poisons Spock!");
+	
+	val cases = mapOf(
+		Pair(0, "Undefined!"),
+		Pair(2, "Stone grinds scissors!"),
+		Pair(3, "Paper covered stone!"),
+		Pair(4, "Spock vaporizes stone!"),
+		Pair(5,	"Stone crushes lizard!"), 
+		Pair(6, "Scissors cut paper!"), 
+		Pair(8,	"Spock smashes scissors!"),
+		Pair(10, "Scissors decapitats lizard!"),
+		Pair(12, "Paper refutes Spock!"), 
+		Pair(15, "Lizard eats paper!"), 
+		Pair(20, "Lizard poisons Spock!"))
 
 	@GetMapping("/")
-	fun checkResult(@RequestParam("choice") usersChoice: Int): Response {
+	fun checkResult(@RequestParam("choice") choosenSymbol: Int): Response {
 		logger.debug { "backend method has been called" }
-		var resultMessage: String = ""
-		var computer = (1 until 6).random()
-		if (usersChoice == Symbols.SCISSORS.rank) {
-			if (computer == usersChoice) {
-				resultMessage = UNDECIDED
-			} else if (computer == Symbols.PAPER.rank || computer == Symbols.LIZARD.rank) {
-				resultMessage = USER_WINS
-			} else {
-				resultMessage = PC_WINS
-			}
-		} else if (usersChoice == Symbols.ROCK.rank) {
-			if (computer == usersChoice) {
-				resultMessage = UNDECIDED
-			} else if (computer == Symbols.SCISSORS.rank || computer == Symbols.LIZARD.rank) {
-				resultMessage = USER_WINS
-			} else {
-				resultMessage = PC_WINS
-			}
-		} else if (usersChoice == Symbols.PAPER.rank) {
-			if (computer == usersChoice) {
-				resultMessage = UNDECIDED
-			} else if (computer == Symbols.SPOCK.rank || computer == Symbols.ROCK.rank) {
-				resultMessage = USER_WINS
-			} else {
-				resultMessage = PC_WINS
-			}
-		} else if (usersChoice == Symbols.SPOCK.rank) {
-			if (computer == usersChoice) {
-				resultMessage = UNDECIDED
-			} else if (computer == Symbols.SCISSORS.rank || computer == Symbols.ROCK.rank) {
-				resultMessage = USER_WINS
-			} else {
-				resultMessage = PC_WINS
-			}
-		} else if (usersChoice == Symbols.LIZARD.rank) {
-			if (computer == usersChoice) {
-				resultMessage = UNDECIDED
-			} else if (computer == Symbols.SPOCK.rank || computer == Symbols.PAPER.rank) {
-				resultMessage = USER_WINS
-			} else {
-				resultMessage = PC_WINS
-			}
+		val randomSymbol = (1 until 6).random()
+		var resultMessage: String?
+		if (choosenSymbol == randomSymbol) {
+			resultMessage = cases.get(0)
+		} else {
+			resultMessage = checkCases(Symbol.fromInt(choosenSymbol), Symbol.fromInt(randomSymbol))
 		}
-		return Response(usersChoice, computer, resultMessage)
+		return Response(Symbol.fromInt(choosenSymbol), Symbol.fromInt(randomSymbol), resultMessage)
+	}
+
+	private fun checkCases(symbol1: Symbol?, symbol2: Symbol?): String? {
+		if(symbol1 != null && symbol2 != null) {
+			return cases.get(symbol1.rank*symbol2.rank)
+		}
+		return null
 	}
 }
