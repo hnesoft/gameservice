@@ -1,3 +1,3 @@
 package eu.hnesoft.gameservice
 
-data class Response(var usersChoice: Symbol?, var computersChoice: Symbol?, var resultMessage: String?)
+data class Response(var usersChoice: Symbol?, var randomChoice: Symbol?, var resultMessage: String?)

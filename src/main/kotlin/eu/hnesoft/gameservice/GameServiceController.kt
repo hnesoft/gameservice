@@ -2,6 +2,7 @@ package eu.hnesoft.gameservice
 
 import mu.KotlinLogging
 
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -9,13 +10,11 @@ import org.springframework.web.bind.annotation.CrossOrigin
 
 @RestController
 @CrossOrigin("http://localhost:4200")
+@RequestMapping("/api")
 class GameController {
 
 	private val logger = KotlinLogging.logger {}
 
-	val USER_WINS: String = "You win!"
-	val PC_WINS: String = "The PC win!"
-	
 	val cases = mapOf(
 		Pair(0, "Undefined!"),
 		Pair(2, "Stone grinds scissors!"),
@@ -30,16 +29,19 @@ class GameController {
 		Pair(20, "Lizard poisons Spock!"))
 
 	@GetMapping("/")
-	fun checkResult(@RequestParam("choice") choosenSymbol: Int): Response {
+	fun checkResult(@RequestParam("symbolId") symbolId: Int): Response {
 		logger.debug { "backend method has been called" }
-		val randomSymbol = (1 until 6).random()
+		
+		val choosenSymbol: Symbol? = Symbol.fromInt(symbolId)
+		val randomSymbol: Symbol? = Symbol.fromInt((1 until 6).random())
+		
 		var resultMessage: String?
 		if (choosenSymbol == randomSymbol) {
 			resultMessage = cases.get(0)
 		} else {
-			resultMessage = checkCases(Symbol.fromInt(choosenSymbol), Symbol.fromInt(randomSymbol))
+			resultMessage = checkCases(choosenSymbol, randomSymbol)
 		}
-		return Response(Symbol.fromInt(choosenSymbol), Symbol.fromInt(randomSymbol), resultMessage)
+		return Response(choosenSymbol, randomSymbol, resultMessage)
 	}
 
 	private fun checkCases(symbol1: Symbol?, symbol2: Symbol?): String? {
